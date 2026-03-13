@@ -1,18 +1,22 @@
 package org.blazejzj.coffeestack.auth;
 
 import org.blazejzj.coffeestack.auth.dto.UserLoginRequest;
+import org.blazejzj.coffeestack.auth.dto.UserLoginResult;
 import org.blazejzj.coffeestack.auth.dto.UserRegisterRequest;
 import org.blazejzj.coffeestack.exception.EmailAlreadyExistsException;
 import org.blazejzj.coffeestack.exception.InvalidCredentialsException;
 import org.blazejzj.coffeestack.exception.UsernameAlreadyExistsException;
+import org.blazejzj.coffeestack.security.JWTService;
 import org.blazejzj.coffeestack.user.UserRepository;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
 import org.blazejzj.coffeestack.user.models.User;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -20,10 +24,12 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JWTService jwtService;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JWTService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtService = jwtService;
     }
 
     public UserResponse registerUser(UserRegisterRequest req) {
@@ -41,7 +47,7 @@ public class AuthService {
         return new UserResponse(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), savedUser.getCreatedAt(), savedUser.getUpdatedAt());
     }
 
-    public UserResponse loginUser(UserLoginRequest req) {
+    public UserLoginResult loginUser(UserLoginRequest req) {
 
         // check first if user exists
         User user = (
@@ -50,11 +56,10 @@ public class AuthService {
                         : userRepository.findByUsername(req.usernameOrEmail())
         ).orElseThrow(InvalidCredentialsException::new);
 
-        // if exist check the password
-        if (!passwordEncoder.matches(req.password(), user.getPasswordHash())) throw new InvalidCredentialsException();
+        // Generate JWT for the authenticated user.
+        String token = jwtService.generateToken(user.getId());
 
-        // Now we generate JWT token with all the information
-        // we also need to "pack" the JWT into a cookie and send it together with the response.
-
+        // Return both the authenticated user and the generated token.
+        return new UserLoginResult(user, token);
     }
 }

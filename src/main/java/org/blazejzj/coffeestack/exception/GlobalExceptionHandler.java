@@ -21,7 +21,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpectedException(Exception ex) {
-        ApiError body = new ApiError("Something unexpected happened ", List.of());
+        System.out.println(ex.getMessage());
+        ApiError body = new ApiError("Something unexpected happened", List.of());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
 

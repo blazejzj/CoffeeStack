@@ -2,8 +2,12 @@ package org.blazejzj.coffeestack.auth;
 
 import jakarta.validation.Valid;
 import org.blazejzj.coffeestack.auth.dto.UserLoginRequest;
+import org.blazejzj.coffeestack.auth.dto.UserLoginResult;
 import org.blazejzj.coffeestack.auth.dto.UserRegisterRequest;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,7 +29,23 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public UserResponse loginUser(@Valid @RequestBody UserLoginRequest req) {
-        return authService.loginUser(req);
-    }
+    public ResponseEntity<UserResponse> loginUser(@Valid @RequestBody UserLoginRequest req) {
+        UserLoginResult result = authService.loginUser(req);
+
+        ResponseCookie cookie = ResponseCookie.from("token", result.token())
+                .httpOnly(true)
+                .secure(false) // note for now we dont do secure. Use true for prod
+                .path("/")
+                .maxAge(604800)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new UserResponse(
+                        result.user().getId(),
+                        result.user().getUsername(),
+                        result.user().getEmail(),
+                        result.user().getCreatedAt(),
+                        result.user().getUpdatedAt()
+                ));    }
 }
