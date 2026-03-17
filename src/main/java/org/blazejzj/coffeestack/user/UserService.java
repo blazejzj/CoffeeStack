@@ -33,16 +33,8 @@ public class UserService {
     }
 
     public UserResponse getMe() {
-        Authentication authentication = SecurityContextHolder
-                .getContext()
-                .getAuthentication();
+        UUID userId = getUserPrincipal();
 
-        // the principal stored in the iflter is user uuid
-        assert authentication != null;
-        UUID userId = (UUID) authentication.getPrincipal();
-
-        // get user from db
-        assert userId != null;
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
@@ -56,18 +48,11 @@ public class UserService {
     }
 
     public MessageResponse changePassword(PasswordChangeRequest req) {
-        // See what user it is by the ID
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || authentication.getPrincipal() == null) {
-            throw new UnauthorizedException();
-        }
-
-        UUID userId = (UUID )authentication.getPrincipal();
+        UUID userId = getUserPrincipal();
 
         // See if user exists in database (is it redundant? (JWT))
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
-        // check if passwords match first
         if (!passwordEncoder.matches(req.oldPassword(), user.getPasswordHash())) {
             throw new WrongPasswordException();
         }
@@ -76,5 +61,17 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         return new MessageResponse("Password changed successfully");
+    }
+
+    private static UUID getUserPrincipal() {
+        Authentication authentication = SecurityContextHolder
+                .getContext()
+                .getAuthentication();
+
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new UnauthorizedException();
+        }
+
+        return (UUID) authentication.getPrincipal();
     }
 }
