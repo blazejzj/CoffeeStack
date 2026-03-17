@@ -1,6 +1,9 @@
 package org.blazejzj.coffeestack.user;
 
+import jakarta.transaction.Transactional;
+import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.exception.UserNotFoundException;
+import org.blazejzj.coffeestack.exception.WrongPasswordException;
 import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
 import org.blazejzj.coffeestack.user.dto.UserInfoChangeResponse;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
@@ -14,6 +17,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
+@Transactional
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -54,27 +58,23 @@ public class UserService {
     public UserInfoChangeResponse changePassword(PasswordChangeRequest req) {
         // See what user it is by the ID
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || authentication.getPrincipal() == null) {
+            throw new UnauthorizedException();
+        }
 
-        assert authentication != null;
         UUID userId = (UUID )authentication.getPrincipal();
 
         // See if user exists in database (is it redundant? (JWT))
-        assert userId != null;
-        User savedUser = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
 
         // check if passwords match first
-        if (passwordEncoder.matches(req.oldPassword(), savedUser.getPasswordHash())) {
-            // throew something here, password do not match
+        if (!passwordEncoder.matches(req.oldPassword(), user.getPasswordHash())) {
+            throw new WrongPasswordException();
         }
 
-        String newPasswordHash = passwordEncoder.encode(req.newPassword());
+        user.setPasswordHash(passwordEncoder.encode(req.newPassword()));
+        user.setUpdatedAt(LocalDateTime.now());
 
-        // create new user and replace it
-        User user = new User(savedUser.getId(), savedUser.getUsername(), savedUser.getEmail(), newPasswordHash, savedUser.getCreatedAt(), LocalDateTime.now());
-
-        // save user to repo
-        userRepository.save(user);
-
-        return new UserInfoChangeResponse("Password successfully updated.");
+        return new UserInfoChangeResponse("Password successfully updated.", new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt()));
     }
 }

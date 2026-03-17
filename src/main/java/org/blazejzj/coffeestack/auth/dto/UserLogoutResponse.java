@@ -1,6 +1,6 @@
 package org.blazejzj.coffeestack.auth.dto;
 
-public record UserLogoutResponse(
+public record UserLogoutResponse (
         String message
 ) {
 }

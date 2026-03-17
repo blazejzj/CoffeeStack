@@ -52,6 +52,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.ok().body(body);
     }
 
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<ApiError> handleUnauthorizedException(UnauthorizedException ex) {
+        ApiError body = new ApiError("Unauthorized ", List.of());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(WrongPasswordException.class)
+    public ResponseEntity<ApiError> handleWrongPasswordException(WrongPasswordException ex) {
+        ApiError body = new ApiError("Wrong password ", List.of());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
     // Private helper class to format errors
     private String formatFieldError(FieldError fe) {
         return fe.getField() + ": " + fe.getDefaultMessage();
