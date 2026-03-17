@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional;
 import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.exception.UserNotFoundException;
 import org.blazejzj.coffeestack.exception.WrongPasswordException;
+import org.blazejzj.coffeestack.user.dto.MessageResponse;
 import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
 import org.blazejzj.coffeestack.user.dto.UserInfoChangeResponse;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
@@ -55,7 +56,7 @@ public class UserService {
         );
     }
 
-    public UserInfoChangeResponse changePassword(PasswordChangeRequest req) {
+    public MessageResponse changePassword(PasswordChangeRequest req) {
         // See what user it is by the ID
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || authentication.getPrincipal() == null) {
@@ -75,6 +76,6 @@ public class UserService {
         user.setPasswordHash(passwordEncoder.encode(req.newPassword()));
         user.setUpdatedAt(LocalDateTime.now());
 
-        return new UserInfoChangeResponse("Password successfully updated.", new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt()));
+        return new MessageResponse("Password changed successfully");
     }
 }
