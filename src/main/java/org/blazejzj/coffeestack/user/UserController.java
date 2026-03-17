@@ -1,9 +1,7 @@
 package org.blazejzj.coffeestack.user;
 
 import jakarta.validation.Valid;
-import org.blazejzj.coffeestack.user.dto.MessageResponse;
-import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
-import org.blazejzj.coffeestack.user.dto.UserResponse;
+import org.blazejzj.coffeestack.user.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -34,7 +32,13 @@ public class UserController {
         return ResponseEntity.ok(userService.changePassword(req));
     }
 
-    // TODO: Change email endpoint (Remember updated at)
-    // TODO: Change username endpoint (Remember updated at)
+    @PatchMapping("/me/email")
+    public ResponseEntity<UserResponse> changeUsername(@Valid @RequestBody UsernameChangeRequest req) {
+        return ResponseEntity.ok(userService.changeUsername(req));
+    }
 
+    @PatchMapping("/me/username")
+    public ResponseEntity<UserResponse> changeEmail(@Valid @RequestBody EmailChangeRequest req) {
+        return ResponseEntity.ok(userService.changeEmail(req));
+    }
 }

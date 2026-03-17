@@ -4,9 +4,7 @@ import jakarta.transaction.Transactional;
 import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.exception.UserNotFoundException;
 import org.blazejzj.coffeestack.exception.WrongPasswordException;
-import org.blazejzj.coffeestack.user.dto.MessageResponse;
-import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
-import org.blazejzj.coffeestack.user.dto.UserResponse;
+import org.blazejzj.coffeestack.user.dto.*;
 import org.blazejzj.coffeestack.user.models.User;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,6 +59,26 @@ public class UserService {
         user.setUpdatedAt(LocalDateTime.now());
 
         return new MessageResponse("Password changed successfully");
+    }
+
+    public UserResponse changeUsername(UsernameChangeRequest req) {
+        UUID userId = getUserPrincipal();
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        user.setUsername(req.newUsername());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
+    }
+
+    public UserResponse changeEmail(EmailChangeRequest req) {
+        UUID userId = getUserPrincipal();
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        user.setEmail(req.newEmail());
+        user.setUpdatedAt(LocalDateTime.now());
+
+        return new UserResponse(user.getId(), user.getUsername(), user.getEmail(), user.getCreatedAt(), user.getUpdatedAt());
     }
 
     private static UUID getUserPrincipal() {
