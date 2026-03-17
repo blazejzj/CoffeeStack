@@ -1,10 +1,9 @@
 package org.blazejzj.coffeestack.user;
 
+import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
+import org.blazejzj.coffeestack.user.dto.UserInfoChangeResponse;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -27,4 +26,14 @@ public class UserController {
     public UserResponse getMe() {
         return userService.getMe();
     }
+
+    // TODO: Change password endpoint (Remember updated at)
+    @PatchMapping("/me/password")
+    public UserInfoChangeResponse changePassword(@Valid @RequestBody PasswordChangeRequest req) {
+        return userService.changePassword(req);
+    }
+
+    // TODO: Change email endpoint (Remember updated at)
+    // TODO: Change username endpoint (Remember updated at)
+
 }
