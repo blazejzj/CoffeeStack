@@ -6,7 +6,6 @@ import org.blazejzj.coffeestack.exception.UserNotFoundException;
 import org.blazejzj.coffeestack.exception.WrongPasswordException;
 import org.blazejzj.coffeestack.user.dto.MessageResponse;
 import org.blazejzj.coffeestack.user.dto.PasswordChangeRequest;
-import org.blazejzj.coffeestack.user.dto.UserInfoChangeResponse;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
 import org.blazejzj.coffeestack.user.models.User;
 import org.springframework.security.core.Authentication;
