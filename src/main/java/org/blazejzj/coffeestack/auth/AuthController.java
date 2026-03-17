@@ -1,13 +1,14 @@
 package org.blazejzj.coffeestack.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.blazejzj.coffeestack.auth.dto.UserLoginRequest;
 import org.blazejzj.coffeestack.auth.dto.UserLoginResult;
+import org.blazejzj.coffeestack.auth.dto.UserLogoutResponse;
 import org.blazejzj.coffeestack.auth.dto.UserRegisterRequest;
 import org.blazejzj.coffeestack.user.dto.UserResponse;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,7 +35,7 @@ public class AuthController {
 
         ResponseCookie cookie = ResponseCookie.from("token", result.token())
                 .httpOnly(true)
-                .secure(false) // note for now we dont do secure. Use true for prod
+                .secure(false) // note for now we don't do secure. Use true for prod
                 .path("/")
                 .maxAge(604800)
                 .build();
@@ -48,4 +49,10 @@ public class AuthController {
                         result.user().getCreatedAt(),
                         result.user().getUpdatedAt()
                 ));    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<UserLogoutResponse> logoutUser(HttpServletRequest req, HttpServletResponse res) {
+        UserLogoutResponse data = authService.logoutUser(req, res);
+        return ResponseEntity.ok().body(data);
+    }
 }

@@ -44,6 +44,14 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(UserNotLoggedInException.class)
+    public ResponseEntity<ApiError> handleUserNotLoggedInException(UserNotLoggedInException ex) {
+        ApiError body = new ApiError("User not logged in ", List.of());
+        // feelin like throwing 400+ error is semantically not correct here, because
+        // logging out happens regardless if someone is logged in or not
+        return ResponseEntity.ok().body(body);
+    }
+
     // Private helper class to format errors
     private String formatFieldError(FieldError fe) {
         return fe.getField() + ": " + fe.getDefaultMessage();
