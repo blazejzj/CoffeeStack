@@ -21,7 +21,6 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleUnexpectedException(Exception ex) {
-        System.out.println(ex.getMessage());
         ApiError body = new ApiError("Something unexpected happened", List.of());
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }
@@ -62,6 +61,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ApiError> handleWrongPasswordException(WrongPasswordException ex) {
         ApiError body = new ApiError("Wrong password ", List.of());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(body);
+    }
+
+    @ExceptionHandler(LessonNotFoundException.class)
+    public ResponseEntity<ApiError> handleLessonNotFoundException(LessonNotFoundException ex) {
+        ApiError body = new ApiError(ex.getMessage(), List.of());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
     // Private helper class to format errors
