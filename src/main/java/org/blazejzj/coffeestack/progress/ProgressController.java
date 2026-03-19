@@ -1,13 +1,12 @@
 package org.blazejzj.coffeestack.progress;
 
 import jakarta.validation.Valid;
+import org.blazejzj.coffeestack.progress.dto.CompletedLessonsResponse;
 import org.blazejzj.coffeestack.progress.dto.LessonUpdateCompletionRequest;
 import org.blazejzj.coffeestack.progress.dto.LessonUpdateCompletionResponse;
+import org.blazejzj.coffeestack.progress.dto.LessonIsCompletedResponse;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -21,6 +20,16 @@ public class ProgressController {
         this.progressService = progressService;
     }
 
+    @GetMapping()
+    public ResponseEntity<CompletedLessonsResponse> getCompletedLessons() {
+        return ResponseEntity.ok().body(progressService.getCompletedLessons());
+    }
+
+    @GetMapping("/check")
+    public ResponseEntity<LessonIsCompletedResponse> isLessonCompleted(@RequestParam(name = "slug") String slug) {
+        return ResponseEntity.ok().body(new LessonIsCompletedResponse(progressService.isLessonCompleted(slug)));
+    }
+
     @PostMapping("/complete")
     public ResponseEntity<LessonUpdateCompletionResponse> updateLessonCompletion(@Valid @RequestBody LessonUpdateCompletionRequest req) throws IOException {
         // result is either "deleted" or "added" dependeing if instance was found or not
@@ -30,5 +39,6 @@ public class ProgressController {
         }
         return ResponseEntity.ok(new LessonUpdateCompletionResponse("Lesson successfully finished"));
     }
+
 
 }

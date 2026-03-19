@@ -3,6 +3,7 @@ package org.blazejzj.coffeestack.progress;
 import org.blazejzj.coffeestack.exception.LessonNotFoundException;
 import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.lesson.LessonService;
+import org.blazejzj.coffeestack.progress.dto.CompletedLessonsResponse;
 import org.blazejzj.coffeestack.progress.dto.LessonUpdateCompletionRequest;
 import org.blazejzj.coffeestack.progress.models.Progress;
 import org.blazejzj.coffeestack.progress.models.ProgressId;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -32,17 +35,34 @@ public class ProgressService {
             throw new LessonNotFoundException("Lesson not found: " + slug);
         }
 
-        ProgressId instanceId = new ProgressId(slug, userId);
+        ProgressId entryId = new ProgressId(slug, userId);
 
         // if entry found we delete it (unfinish the lesson)
-        if (progressRepository.existsById(instanceId)) {
-            progressRepository.deleteById(instanceId);
+        if (progressRepository.existsById(entryId)) {
+            progressRepository.deleteById(entryId);
             return false;
         }
 
         // if entry not found we add it, meaning the lesson has been finished
-        progressRepository.save(new Progress(instanceId, LocalDateTime.now()));
+        progressRepository.save(new Progress(entryId, LocalDateTime.now()));
         return true;
+    }
+
+    public CompletedLessonsResponse getCompletedLessons() {
+        UUID userId = getUserPrincipal();
+        List<Progress> allEntries = progressRepository.findAllByProgressIdUserId(userId);
+
+        List<String> slugs = new ArrayList<>();
+        for (Progress entry : allEntries) {
+            slugs.add(entry.getProgressId().getLessonSlug());
+        }
+        return new CompletedLessonsResponse(slugs);
+    }
+
+    public boolean isLessonCompleted(String slug) {
+        UUID userId = getUserPrincipal();
+        slug = normalizeSlug(slug);
+        return progressRepository.existsById(new ProgressId(slug, userId));
     }
 
     private static String normalizeSlug(String slug) {
