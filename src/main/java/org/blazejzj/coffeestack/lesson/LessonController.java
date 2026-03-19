@@ -22,16 +22,16 @@ public class LessonController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<LessonResponse>> getAllLessons(@RequestParam(name = "module", required = false) String type) throws IOException {
-        if (type != null) {
-            return ResponseEntity.ok(lessonService.getAllSlugsByModule(type));
+    public ResponseEntity<List<LessonResponse>> getAllLessons(@RequestParam(name = "module", required = false) String module) throws IOException {
+        if (module != null) {
+            return ResponseEntity.ok(lessonService.getAllLessonsByModule(module));
         }
-        return ResponseEntity.ok(lessonService.getAllSlugs());
+        return ResponseEntity.ok(lessonService.getAllLessons());
 
     }
 
     @GetMapping("/by-slug")
-    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug) throws IOException {
+    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug) {
         return ResponseEntity.ok(lessonService.getLessonBySlug(slug));
     }
 }

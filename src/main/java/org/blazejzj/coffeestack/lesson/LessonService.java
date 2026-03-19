@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class LessonService {
@@ -20,7 +22,7 @@ public class LessonService {
     private static final PathMatchingResourcePatternResolver resolver =
             new PathMatchingResourcePatternResolver();
 
-    public List<LessonResponse> getAllSlugs() throws IOException {
+    public List<LessonResponse> getAllLessons() throws IOException {
         // Return slug, title, excerpt, order
 
         Resource[] resources = resolver.getResources("classpath:content/**/*.md");
@@ -31,35 +33,47 @@ public class LessonService {
             response.add(buildLessonResponse(slug));
         }
 
+        response.sort(Comparator.comparingInt(LessonResponse::order));
         return response;
     }
 
-    public LessonDetails getLessonBySlug(String slug) throws IOException {
+    public LessonDetails getLessonBySlug(String slug) {
         // return slug, title, excerpt, order, module, content
+        slug = normalizeSlug(slug);
         String lessonRaw = getAllLessonContent(slug);
 
-        String frontmatter = lessonRaw.split("---", 3)[1];
-        String content = lessonRaw.split("---", 3)[2];
+        String frontmatter = extractFrontmatter(lessonRaw);
+        String content = extractContent(lessonRaw);
 
-        String[] values = extractFrontmatterValues(frontmatter);
-        LessonResponse information = new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2]));
+        Map<String, String> values = extractFrontmatterValues(frontmatter);
+        LessonResponse information = new LessonResponse(
+                slug,
+                values.get("title"),
+                values.get("excerpt"),
+                Integer.parseInt(values.get("order"))
+        );
 
         String module = slug.split("/")[0];
 
         return new LessonDetails(information, content, module);
     }
 
-    public List<LessonResponse> getAllSlugsByModule(String module) throws IOException {
+    public List<LessonResponse> getAllLessonsByModule(String module) throws IOException {
         // Return slug, title, excerpt, order for a specific module
 
-        Resource[] resources = resolver.getResources("classpath:content/" + module + "/*.md");
+        module = normalizeSlug(module);
+
+        Resource[] resources = resolver.getResources("classpath:content/**/*.md");
         List<String> slugs = extractSlugs(resources);
 
         List<LessonResponse> response = new ArrayList<>();
         for (String slug : slugs) {
-            response.add(buildLessonResponse(slug));
+            if (slug.startsWith(module + "/")) {
+                response.add(buildLessonResponse(slug));
+            }
         }
 
+        response.sort(Comparator.comparingInt(LessonResponse::order));
         return response;
     }
 
@@ -79,25 +93,73 @@ public class LessonService {
     }
 
     private LessonResponse buildLessonResponse(String slug) {
-        String frontmatter = getAllLessonContent(slug).split("---", 3)[1];
+        String lessonRaw = getAllLessonContent(slug);
+        String frontmatter = extractFrontmatter(lessonRaw);
 
-        String[] values = extractFrontmatterValues(frontmatter);
+        Map<String, String> values = extractFrontmatterValues(frontmatter);
 
         // unsure on how else I could do it, but here I am hardcoding those values.
         // We assume these 3 values will ALWAYS be in the same order
-        return new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2]));
+        return new LessonResponse(
+                slug,
+                values.get("title"),
+                values.get("excerpt"),
+                Integer.parseInt(values.get("order"))
+        );
     }
 
-    private String[] extractFrontmatterValues(String frontmatter) {
+    private Map<String, String> extractFrontmatterValues(String frontmatter) {
         // i = 0 -> title
         // i =  1 -> excerpt
         // i = 2 -> order
         String[] lines = frontmatter.split("\n");
+        Map<String, String> values = new LinkedHashMap<>();
 
-        return Arrays.stream(lines)
-                .filter(line -> line.contains(":"))
-                .map(line -> line.split(":", 2)[1].trim())
-                .toArray(String[]::new);
+        for (String line : lines) {
+            if (!line.contains(":")) {
+                continue;
+            }
+
+            String[] parts = line.split(":", 2);
+            values.put(parts[0].trim(), parts[1].trim());
+        }
+
+        validateFrontmatter(values);
+        return values;
+    }
+
+    private void validateFrontmatter(Map<String, String> values) {
+        if (!values.containsKey("title")) {
+            throw new IllegalArgumentException("Missing required frontmatter field: title");
+        }
+
+        if (!values.containsKey("excerpt")) {
+            throw new IllegalArgumentException("Missing required frontmatter field: excerpt");
+        }
+
+        if (!values.containsKey("order")) {
+            throw new IllegalArgumentException("Missing required frontmatter field: order");
+        }
+    }
+
+    private String extractFrontmatter(String lessonRaw) {
+        String[] parts = lessonRaw.split("---", 3);
+
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Lesson file must contain frontmatter");
+        }
+
+        return parts[1];
+    }
+
+    private String extractContent(String lessonRaw) {
+        String[] parts = lessonRaw.split("---", 3);
+
+        if (parts.length < 3) {
+            throw new IllegalArgumentException("Lesson file must contain frontmatter");
+        }
+
+        return parts[2].trim();
     }
 
     private static String getAllLessonContent(String slug) {

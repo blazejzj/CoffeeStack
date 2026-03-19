@@ -69,6 +69,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiError> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ApiError body = new ApiError(ex.getMessage(), List.of());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
+    }
+
     // Private helper class to format errors
     private String formatFieldError(FieldError fe) {
         return fe.getField() + ": " + fe.getDefaultMessage();
