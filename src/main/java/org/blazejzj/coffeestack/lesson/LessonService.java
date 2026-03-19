@@ -77,6 +77,16 @@ public class LessonService {
         return response;
     }
 
+    public boolean slugExists(String slug) throws IOException {
+        Resource[] resources = resolver.getResources("classpath:content/**/*.md");
+        List<String> allSlugs = extractSlugs(resources);
+
+        for (String s : allSlugs) {
+            if (s.equalsIgnoreCase(slug)) return true;
+        }
+        return false;
+    }
+
     private List<String> extractSlugs(Resource[] resources) throws IOException {
         List<String> slugs = new ArrayList<>();
         for (Resource resource : resources) {
