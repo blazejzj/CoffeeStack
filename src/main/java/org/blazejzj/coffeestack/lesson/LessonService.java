@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-// currently spaghetti code have to refactor stuff. but everything works as intended.
-
 @Service
 public class LessonService {
 
@@ -26,38 +24,12 @@ public class LessonService {
         // Return slug, title, excerpt, order
 
         Resource[] resources = resolver.getResources("classpath:content/**/*.md");
-
-        List<String> slugs = new ArrayList<>();
-        for (Resource resource : resources) {
-            String path = resource.getURI().getPath();
-            int index = path.indexOf("/content/");
-
-            if (index != -1) {
-                String slug = path.substring(index + "/content/".length());
-                slug = slug.substring(0, slug.length() - 3);
-                slugs.add(slug);
-            }
-        }
+        List<String> slugs = extractSlugs(resources);
 
         List<LessonResponse> response = new ArrayList<>();
         for (String slug : slugs) {
-            String frontmatter = getAllLessonContent(slug).split("---", 3)[1];
-
-
-            // i = 0 -> title
-            // i =  1 -> excerpt
-            // i = 2 -> order
-            String[] lines = frontmatter.split("\n");
-
-            String[] values = Arrays.stream(lines)
-                    .filter(line -> line.contains(":"))
-                    .map(line -> line.split(":", 2)[1].trim())
-                    .toArray(String[]::new);
-            // unsure on how else I could do it, but here I am hardcoding those values.
-            // We assume these 3 values will ALWAYS be in the same order
-            response.add(new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2])));
+            response.add(buildLessonResponse(slug));
         }
-
 
         return response;
     }
@@ -69,17 +41,7 @@ public class LessonService {
         String frontmatter = lessonRaw.split("---", 3)[1];
         String content = lessonRaw.split("---", 3)[2];
 
-        // i = 0 -> title
-        // i =  1 -> excerpt
-        // i = 2 -> order
-        String[] lines = frontmatter.split("\n");
-
-        String[] values = Arrays.stream(lines)
-                .filter(line -> line.contains(":"))
-                .map(line -> line.split(":", 2)[1].trim())
-                .toArray(String[]::new);
-        // unsure on how else I could do it, but here I am hardcoding those values.
-        // We assume these 3 values will ALWAYS be in the same order
+        String[] values = extractFrontmatterValues(frontmatter);
         LessonResponse information = new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2]));
 
         String module = slug.split("/")[0];
@@ -91,14 +53,20 @@ public class LessonService {
         // Return slug, title, excerpt, order for a specific module
 
         Resource[] resources = resolver.getResources("classpath:content/" + module + "/*.md");
-        for (Resource r : resources) {
-            System.out.println(r.getFilePath());
+        List<String> slugs = extractSlugs(resources);
+
+        List<LessonResponse> response = new ArrayList<>();
+        for (String slug : slugs) {
+            response.add(buildLessonResponse(slug));
         }
 
+        return response;
+    }
+
+    private List<String> extractSlugs(Resource[] resources) throws IOException {
         List<String> slugs = new ArrayList<>();
         for (Resource resource : resources) {
             String path = resource.getURI().getPath();
-            System.out.println(path);
             int index = path.indexOf("/content/");
 
             if (index != -1) {
@@ -107,28 +75,29 @@ public class LessonService {
                 slugs.add(slug);
             }
         }
+        return slugs;
+    }
 
-        List<LessonResponse> response = new ArrayList<>();
-        for (String slug : slugs) {
-            String frontmatter = getAllLessonContent(slug).split("---", 3)[1];
+    private LessonResponse buildLessonResponse(String slug) {
+        String frontmatter = getAllLessonContent(slug).split("---", 3)[1];
 
+        String[] values = extractFrontmatterValues(frontmatter);
 
-            // i = 0 -> title
-            // i =  1 -> excerpt
-            // i = 2 -> order
-            String[] lines = frontmatter.split("\n");
+        // unsure on how else I could do it, but here I am hardcoding those values.
+        // We assume these 3 values will ALWAYS be in the same order
+        return new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2]));
+    }
 
-            String[] values = Arrays.stream(lines)
-                    .filter(line -> line.contains(":"))
-                    .map(line -> line.split(":", 2)[1].trim())
-                    .toArray(String[]::new);
-            // unsure on how else I could do it, but here I am hardcoding those values.
-            // We assume these 3 values will ALWAYS be in the same order
-            response.add(new LessonResponse(slug, values[0], values[1], Integer.parseInt(values[2])));
-        }
+    private String[] extractFrontmatterValues(String frontmatter) {
+        // i = 0 -> title
+        // i =  1 -> excerpt
+        // i = 2 -> order
+        String[] lines = frontmatter.split("\n");
 
-
-        return response;
+        return Arrays.stream(lines)
+                .filter(line -> line.contains(":"))
+                .map(line -> line.split(":", 2)[1].trim())
+                .toArray(String[]::new);
     }
 
     private static String getAllLessonContent(String slug) {
