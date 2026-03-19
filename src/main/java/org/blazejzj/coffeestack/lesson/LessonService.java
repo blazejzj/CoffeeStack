@@ -50,7 +50,8 @@ public class LessonService {
                 slug,
                 values.get("title"),
                 values.get("excerpt"),
-                Integer.parseInt(values.get("order"))
+                Integer.parseInt(values.get("order")),
+                false // by default false, going to be modified in the controller
         );
 
         String module = slug.split("/")[0];
@@ -114,7 +115,8 @@ public class LessonService {
                 slug,
                 values.get("title"),
                 values.get("excerpt"),
-                Integer.parseInt(values.get("order"))
+                Integer.parseInt(values.get("order")),
+                false // by default false, going to be "modified" in the controller
         );
     }
 

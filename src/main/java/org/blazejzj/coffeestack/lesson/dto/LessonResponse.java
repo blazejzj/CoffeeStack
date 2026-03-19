@@ -4,6 +4,7 @@ public record LessonResponse(
         String slug,
         String title,
         String excerpt,
-        int order
+        int order,
+        boolean completed
 ) {
 }
