@@ -45,7 +45,47 @@ public class LessonController {
     }
 
     @GetMapping("/by-slug")
-    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug) {
-        return ResponseEntity.ok(lessonService.getLessonBySlug(slug));
+    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug)  {
+        LessonDetails lesson = lessonService.getLessonBySlug(slug);
+
+        List<String> completed = progressService.getCompletedLessons().slugs();
+        Set<String> completedSet = new HashSet<>(completed);
+
+        LessonResponse information = lesson.information();
+        LessonResponse updatedInformation = new LessonResponse(
+                information.slug(),
+                information.title(),
+                information.excerpt(),
+                information.order(),
+                completedSet.contains(information.slug())
+        );
+
+        LessonResponse previousLesson = lesson.previousLesson() == null
+                ? null
+                : new LessonResponse(
+                lesson.previousLesson().slug(),
+                lesson.previousLesson().title(),
+                lesson.previousLesson().excerpt(),
+                lesson.previousLesson().order(),
+                completedSet.contains(lesson.previousLesson().slug())
+        );
+
+        LessonResponse nextLesson = lesson.nextLesson() == null
+                ? null
+                : new LessonResponse(
+                lesson.nextLesson().slug(),
+                lesson.nextLesson().title(),
+                lesson.nextLesson().excerpt(),
+                lesson.nextLesson().order(),
+                completedSet.contains(lesson.nextLesson().slug())
+        );
+
+        return ResponseEntity.ok().body(new LessonDetails(
+                updatedInformation,
+                lesson.content(),
+                lesson.module(),
+                previousLesson,
+                nextLesson
+        ));
     }
 }

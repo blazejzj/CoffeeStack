@@ -37,7 +37,7 @@ public class LessonService {
         return response;
     }
 
-    public LessonDetails getLessonBySlug(String slug) {
+    public LessonDetails getLessonBySlug(String slug) throws IOException {
         // return slug, title, excerpt, order, module, content
         slug = normalizeSlug(slug);
         String lessonRaw = getAllLessonContent(slug);
@@ -56,7 +56,13 @@ public class LessonService {
 
         String module = slug.split("/")[0];
 
-        return new LessonDetails(information, content, module);
+        return new LessonDetails(
+                information,
+                content,
+                module,
+                getPreviousLesson(slug),
+                getNextLesson(slug)
+        );
     }
 
     public List<LessonResponse> getAllLessonsByModule(String module) throws IOException {
@@ -86,6 +92,38 @@ public class LessonService {
             if (s.equalsIgnoreCase(slug)) return true;
         }
         return false;
+    }
+
+    public LessonResponse getPreviousLesson(String slug) throws IOException {
+        slug = normalizeSlug(slug);
+        List<LessonResponse> lessons = getAllLessons();
+
+        for (int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).slug().equals(slug)) {
+                if (i == 0) {
+                    return null;
+                }
+                return lessons.get(i - 1);
+            }
+        }
+
+        throw new LessonNotFoundException("Lesson not found: " + slug);
+    }
+
+    public LessonResponse getNextLesson(String slug) throws IOException {
+        slug = normalizeSlug(slug);
+        List<LessonResponse> lessons = getAllLessons();
+
+        for (int i = 0; i < lessons.size(); i++) {
+            if (lessons.get(i).slug().equals(slug)) {
+                if (i + 1 >= lessons.size()) {
+                    return null;
+                }
+                return lessons.get(i + 1);
+            }
+        }
+
+        throw new LessonNotFoundException("Lesson not found: " + slug);
     }
 
     private List<String> extractSlugs(Resource[] resources) throws IOException {
