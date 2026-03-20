@@ -45,7 +45,7 @@ public class LessonController {
     }
 
     @GetMapping("/by-slug")
-    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug)  {
+    public ResponseEntity<LessonDetails> getLessonBySlug(@RequestParam("slug") String slug) throws IOException {
         LessonDetails lesson = lessonService.getLessonBySlug(slug);
 
         List<String> completed = progressService.getCompletedLessons().slugs();
