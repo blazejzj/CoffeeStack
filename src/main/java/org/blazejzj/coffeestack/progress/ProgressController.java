@@ -1,6 +1,7 @@
 package org.blazejzj.coffeestack.progress;
 
 import jakarta.validation.Valid;
+import org.blazejzj.coffeestack.lesson.dto.ResumeLessonResponse;
 import org.blazejzj.coffeestack.progress.dto.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,5 +44,10 @@ public class ProgressController {
             return ResponseEntity.ok(new LessonUpdateCompletionResponse("Lesson successfully unfinished"));
         }
         return ResponseEntity.ok(new LessonUpdateCompletionResponse("Lesson successfully finished"));
+    }
+
+    @GetMapping("/resume")
+    public ResponseEntity<ResumeLessonResponse> getResumeLesson() throws IOException {
+        return ResponseEntity.ok().body(progressService.getResumeLesson());
     }
 }

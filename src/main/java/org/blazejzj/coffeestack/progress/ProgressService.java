@@ -3,6 +3,8 @@ package org.blazejzj.coffeestack.progress;
 import org.blazejzj.coffeestack.exception.LessonNotFoundException;
 import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.lesson.LessonService;
+import org.blazejzj.coffeestack.lesson.dto.LessonResponse;
+import org.blazejzj.coffeestack.lesson.dto.ResumeLessonResponse;
 import org.blazejzj.coffeestack.progress.dto.CompletedLessonsResponse;
 import org.blazejzj.coffeestack.progress.dto.LessonUpdateCompletionRequest;
 import org.blazejzj.coffeestack.progress.dto.ProgressSummaryResponse;
@@ -14,9 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 public class ProgressService {
@@ -102,6 +102,43 @@ public class ProgressService {
                 completedLessons,
                 totalLessons,
                 percentage
+        );
+    }
+
+    public ResumeLessonResponse getResumeLesson() throws IOException {
+        UUID userId = getUserPrincipal();
+
+        List<Progress> allEntries = progressRepository.findAllByProgressIdUserId(userId);
+        if (allEntries.isEmpty()) {
+            return new ResumeLessonResponse(null);
+        }
+
+        Set<String> completedSlugs = new HashSet<>();
+        for (Progress entry : allEntries) {
+            completedSlugs.add(entry.getProgressId().getLessonSlug());
+        }
+
+        List<LessonResponse> allLessons = lessonService.getAllLessons();
+
+        LessonResponse highestCompletedLesson = null;
+        for (LessonResponse lesson : allLessons) {
+            if (completedSlugs.contains(lesson.slug())) {
+                highestCompletedLesson = lesson;
+            }
+        }
+
+        if (highestCompletedLesson == null) {
+            return new ResumeLessonResponse(null);
+        }
+
+        return new ResumeLessonResponse(
+                new LessonResponse(
+                        highestCompletedLesson.slug(),
+                        highestCompletedLesson.title(),
+                        highestCompletedLesson.excerpt(),
+                        highestCompletedLesson.order(),
+                        true
+                )
         );
     }
 
