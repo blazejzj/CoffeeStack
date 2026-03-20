@@ -5,6 +5,7 @@ import org.blazejzj.coffeestack.exception.UnauthorizedException;
 import org.blazejzj.coffeestack.lesson.LessonService;
 import org.blazejzj.coffeestack.progress.dto.CompletedLessonsResponse;
 import org.blazejzj.coffeestack.progress.dto.LessonUpdateCompletionRequest;
+import org.blazejzj.coffeestack.progress.dto.ProgressSummaryResponse;
 import org.blazejzj.coffeestack.progress.models.Progress;
 import org.blazejzj.coffeestack.progress.models.ProgressId;
 import org.springframework.security.core.Authentication;
@@ -63,6 +64,45 @@ public class ProgressService {
         UUID userId = getUserPrincipal();
         slug = normalizeSlug(slug);
         return progressRepository.existsById(new ProgressId(slug, userId));
+    }
+
+    public ProgressSummaryResponse getTotalProgressSummary() throws IOException {
+        UUID userId = getUserPrincipal();
+
+        int completedLessons = progressRepository.findAllByProgressIdUserId(userId).size();
+        int totalLessons = lessonService.getAllLessons().size();
+
+        double percentage = totalLessons == 0
+                ? 0
+                : ((double) completedLessons / totalLessons) * 100;
+
+        return new ProgressSummaryResponse(
+                null,
+                completedLessons,
+                totalLessons,
+                percentage
+        );
+    }
+
+    public ProgressSummaryResponse getModuleProgressSummary(String module) throws IOException {
+        UUID userId = getUserPrincipal();
+        module = normalizeSlug(module);
+
+        int completedLessons = (int) progressRepository
+                .countByProgressIdUserIdAndProgressIdLessonSlugStartingWith(userId, module + "/");
+
+        int totalLessons = lessonService.getAllLessonsByModule(module).size();
+
+        double percentage = totalLessons == 0
+                ? 0
+                : ((double) completedLessons / totalLessons) * 100;
+
+        return new ProgressSummaryResponse(
+                module,
+                completedLessons,
+                totalLessons,
+                percentage
+        );
     }
 
     private static String normalizeSlug(String slug) {

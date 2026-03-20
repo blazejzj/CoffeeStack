@@ -11,4 +11,5 @@ import java.util.UUID;
 @Repository
 public interface ProgressRepository extends JpaRepository<Progress, ProgressId> {
     List<Progress> findAllByProgressIdUserId(UUID userId);
+    long countByProgressIdUserIdAndProgressIdLessonSlugStartingWith(UUID userId, String prefix);
 }
