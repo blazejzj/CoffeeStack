@@ -1,119 +1,106 @@
 ---
-title: Introduction to Programming
-excerpt: What programming actually is, and what you're really learning when you write code.
+title: Welcome to CoffeeStack
+excerpt: What this platform is, how it works, and what you can expect as you begin your journey into backend and fullstack development.
 order: 1
 ---
 
-# Introduction
+## Introduction
 
-Before you write any serious code, it’s worth understanding what programming actually is.
+Welcome to CoffeeStack.
 
-Most beginners think programming is about learning a language like Java, Python, or JavaScript.
+If you are here, you are probably thinking about learning how to code. Maybe you are completely new, or maybe you have tried before and felt stuck. You might have followed tutorials, copied code that seemed to work, and still felt like you did not really understand what was going on.
 
-That’s not really true.
+That is a very common experience.
 
-A programming language is just a tool. The real skill is learning how to break problems into small, logical steps that a computer can follow.
+CoffeeStack is built to take you from that starting point to being able to build real applications. You will begin with the fundamentals of programming using Java, then move into backend development, work with databases, build APIs, and eventually connect everything to a frontend using React.
 
-That’s all programming is.
+The goal is not just to show you how to write code. The goal is to help you understand how things work so you can build and figure things out on your own.
 
-## What is a program?
+---
 
-A program is just a set of instructions.
+## Lesson Overview
 
-If you’ve ever followed a recipe, you’ve already done something very similar to programming:
+In this lesson, you will learn:
 
-1. Preheat the oven
-2. Mix ingredients
-3. Bake for 20 minutes
+- What CoffeeStack is and what it aims to teach
+- How the course is structured
+- What kind of learning approach to expect
+- What is expected from you as a learner
 
-The computer works the same way, except it’s extremely strict. It won’t guess what you meant. It only does exactly what you tell it.
+---
 
-If your instructions are unclear or wrong, the result will be wrong too.
+## What CoffeeStack Is
 
-## Why is it hard at first?
+CoffeeStack is a learning path focused on building real skills.
 
-Programming feels difficult in the beginning for a few reasons:
+You are not here to memorize syntax or follow along with examples without understanding them. You are here to learn how to build things and how to think through problems.
 
-- You’re learning a new way of thinking
-- You have to be precise
-- You don’t get immediate intuition like you do in real life
+At the beginning, the things you build will be small. Simple programs, basic logic, and small exercises that help you understand how code behaves. These might not seem impressive at first, but they are important. Everything else builds on top of them.
 
-In real life, if you say "put that over there", people understand you.
+As you move forward, the projects become more realistic. You will start building backend systems, working with data, and structuring applications in a way that reflects how real systems are built. Later, you will connect those systems to a frontend and create complete applications.
 
-In programming, that doesn’t work.
+By the end, the goal is that you can build something on your own and understand how all the pieces fit together.
 
-You need to say exactly:
-- what
-- where
-- how
+---
 
-That level of precision is what makes programming powerful, but also frustrating at the start.
+## What This Course Is Not
 
-## What are you actually learning?
+This is not a course where you are given every answer.
 
-When you learn programming, you are building a few core skills:
+You will not always be told exactly what to type, and you will not always be given complete solutions. There will be moments where things do not work, where something feels unclear, or where you need to stop and figure things out yourself.
 
-### 1. Breaking problems down
+That is intentional.
 
-Instead of thinking:
+Learning to program means learning how to deal with problems you do not immediately understand. You will try things that fail, read errors that do not make sense at first, and slowly work your way toward a solution. That process is not something to avoid, it is the core of what you are learning.
 
-"Build a login system"
+If you expect everything to feel smooth, you will get frustrated. If you accept that confusion is part of the process, you will make steady progress.
 
-You learn to think:
+---
 
-- accept input
-- validate input
-- check user in database
-- compare password
-- return response
+## How This Course Is Structured
 
-This is one of the most important skills you will build.
+The course is divided into sections that build on each other.
 
-### 2. Thinking in steps
+You will start with the foundations of programming. This is where you learn how code works, how to structure logic, and how to think through problems. These lessons are essential, even if they feel basic at first.
 
-Computers don’t "figure things out".
+From there, you will move into backend development. You will build APIs using Spring Boot, learn how applications handle requests, and start working with real data.
 
-They execute steps in order.
+After that, you will work with databases, then move into authentication and security. Finally, you will learn React and connect everything into a fullstack application.
 
-If step 3 depends on step 2, and step 2 fails, everything after that breaks.
+Each lesson focuses on one idea at a time. You learn it, use it, and then move forward. Over time, these small pieces come together into a much larger understanding.
 
-So you learn to think in sequences.
+---
 
-### 3. Understanding systems
+## What Is Expected From You
 
-Eventually, you stop thinking about just code and start thinking about systems:
+This course only works if you are active.
 
-- how data flows
-- where things are stored
-- how parts of your application communicate
+Reading is not enough. You need to write code, test things, and see what happens when something breaks. You need to try solving problems before looking for answers.
 
-This is where backend development really starts to make sense.
+You will get stuck. That is normal. When it happens, your first step should not be to search for a solution right away, but to understand the problem. Read the error message, go through your code, and try small changes to see what happens.
 
-## Where Java fits into this
+If something does not make sense, keep moving and come back later. Many things become clearer once you have seen them more than once.
 
-Java is just the language you’re using to express your ideas.
+You do not need to be perfect. You just need to keep going.
 
-It gives you tools like:
+---
 
-- variables (to store data)
-- methods (to group logic)
-- classes (to structure your code)
+## Conclusion
 
-But Java is not the goal.
+Learning to program takes time, and it will not always feel easy. There will be moments where things click, and moments where they do not. That is part of the process.
 
-The goal is learning how to think clearly and build systems that make sense.
+What matters is consistency. If you keep showing up, keep writing code, and keep trying to understand what you are doing, you will improve.
 
-## What to expect next
+This course is here to guide you, but the progress comes from the work you put into it.
 
-In the next lessons, you’ll start with the basics:
+---
 
-- how Java runs
-- what variables are
-- how control flow works
-- how to structure simple programs
+## Knowledge Check
 
-Don’t worry about memorizing everything.
+Before moving on, take a moment to think about these:
 
-Focus on understanding what is happening and why.
-
-That’s what actually sticks.
+- What is the main goal of CoffeeStack?
+- What kind of skills are you expected to build here?
+- Why is this course not designed to give you every answer?
+- What should you do when you get stuck?
+- What is the overall path from beginner to fullstack developer in this course?
